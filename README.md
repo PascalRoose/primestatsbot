@@ -10,11 +10,11 @@ Open your Agent Profile in Ingress Prime. Now press the copy button that is in t
 It should be under your current Level.
 
 #### Private chat
-Open [@primestatsbot](t.me/primestatsbot) and start the bot. If you paste and send the stats you just copied it will
+Open [@primestatsbot](http://t.me/primestatsbot) and start the bot. If you paste and send the stats you just copied it will
 send back a nicely formatted message with your stats.
 
 #### Group chat
-Add  [@primestatsbot](t.me/primestatsbot) to group you want to use it in. Give the bot administrative rights so it can 
+Add  [@primestatsbot](http://t.me/primestatsbot) to group you want to use it in. Give the bot administrative rights so it can 
 at least read messages. Whenever it detects messages that are stats copied from Ingress Prime it will back a message 
 with the stats nicely formatted.
 
@@ -26,7 +26,7 @@ I've been added to. In that case you can read through and check the sourcecode h
 You will need Python 3.6 or higher and setup tools. That's it!
 
 ### Setup
-First set up a bot using [@botfather](t.me/botfather). Here you can also get the bot token you're gonna need.
+First set up a bot using [@botfather](http://t.me/botfather). Here you can also get the bot token you're gonna need.
 
 Fill in the variables in 'example.env' and save the file as '.env'.
 
