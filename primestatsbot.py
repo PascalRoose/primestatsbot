@@ -16,7 +16,7 @@ from telegram.ext import Updater, MessageHandler, CommandHandler, Filters, BaseF
 from dotenv import load_dotenv
 
 # Enable logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Load .env file
@@ -24,54 +24,90 @@ load_dotenv()
 
 # All possible stats in the order it would appear in the export
 stats_header = \
-    [
-        # General
-        'Time Span', 'Agent Name', 'Agent Faction', 'Date (yyyy-mm-dd)', 'Time (hh:mm:ss)', 'Lifetime AP', 'Current AP',
-
-        # Discovery
-        'Unique Portals Visited', 'Portals Discovered', 'Seer Points', 'XM Collected', 'OPR Agreements',
-
-        # Health
-        'Distance Walked',
-
-        # Building
-        'Resonators Deployed', 'Links Created', 'Control Fields Created', 'Mind Units Captured',
-        'Longest Link Ever Created', 'Largest Control Field', 'XM Recharged', 'Portals Captured',
-        'Unique Portals Captured', 'Mods Deployed',
-
-        # Combat
-        'Resonators Destroyed', 'Portals Neutralized', 'Enemy Links Destroyed', 'Enemy Fields Destroyed',
-
-        # Defense
-        'Max Time Portal Held', 'Max Time Link Maintained', 'Max Link Length x Days', 'Max Time Field Held',
-        'Largest Field MUs x Days',
-
-        # Missions
-        'Unique Missions Completed',
-
-        # Resource Gathering
-        'Hacks', 'Glyph Hack Points', 'Longest Hacking Streak',
-
-        # Mentoring
-        'Agents Successfully Recruited',
-
-        # Events
-        'Mission Day(s) Attended', 'NL-1331 Meetup(s) Attended', 'First Saturday Events', 'Clear Fields Events',
-        'OPR Live Events', 'Prime Challenges', 'Intel Ops Missions', 'Stealth Ops Missions',
-
-        # Recursions
-        'Recursions',
-
-        # NOW Stats
-        'Links Active', 'Portals Owned', 'Control Fields Active', 'Mind Unit Control', 'Current Hacking Streak'
-    ]
+    {
+        # Categories
+        'General': {
+            # 'Stat name' : 'Unit'
+            'Time Span': '',
+            'Agent Name': '',
+            'Agent Faction': '',
+            'Date (yyyy-mm-dd)': '',
+            'Time (hh:mm:ss)': '',
+            'Lifetime AP': 'AP',
+            'Current AP': 'AP'
+        },
+        'Discovery': {
+            'Unique Portals Visited': '',
+            'Portals Discovered': '',
+            'Seer Points': '',
+            'XM Collected': 'XM',
+            'OPR Agreements': ''
+        },
+        'Health': {
+            'Distance Walked': 'km'
+        },
+        'Building': {
+            'Resonators Deployed': '',
+            'Links Created': '',
+            'Control Fields Created': '',
+            'Mind Units Captured': 'MUs',
+            'Longest Link Ever Created': 'km',
+            'Largest Control Field': 'MUs',
+            'XM Recharged': '',
+            'Portals Captured': '',
+            'Unique Portals Captured': '',
+            'Mods Deployed': '',
+            'Links Active': '',
+            'Portals Owned': '',
+            'Control Fields Active': '',
+            'Mind Unit Control': 'MUs'
+        },
+        'Combat': {
+            'Resonators Destroyed': '',
+            'Portals Neutralized': '',
+            'Enemy Links Destroyed': '',
+            'Enemy Fields Destroyed': ''
+        },
+        'Defense': {
+            'Max Time Portal Held': 'days',
+            'Max Time Link Maintained': 'days',
+            'Max Link Length x Days': 'km-days',
+            'Max Time Field Held': 'days',
+            'Largest Field MUs x Days': 'MU-days'
+        },
+        'Missions': {
+            'Unique Missions Completed': ''
+        },
+        'Resource Gathering': {
+            'Hacks': '',
+            'Glyph Hack Points': '',
+            'Longest Hacking Streak': 'days',
+            'Current Hacking Streak': 'days'
+        },
+        'Mentoring': {
+            'Agents Successfully Recruited': ''
+        },
+        'Events': {
+            'Mission Day(s) Attended': '',
+            'NL-1331 Meetup(s) Attended': '',
+            'First Saturday Events': '',
+            'Clear Fields Events': '',
+            'OPR Live Events': '',
+            'Prime Challenges': '',
+            'Intel Ops Missions': '',
+            'Stealth Ops Missions': ''
+        },
+        'Recursion': {
+            'Recursions': ''
+        }
+    }
 
 
 # Custom filter to check if a 'exported stats' message was sent
 class StatsFilter(BaseFilter):
     def filter(self, message):
         # Check if the message contains at least the first 7 keys in stats_header (# General)
-        return str(message.text).startswith(' '.join(stats_header[:7]))
+        return str(message.text).startswith(' '.join(stats_header['General'].keys()))
 
 
 def fix_timespan(stats_values):
@@ -107,43 +143,57 @@ def process_stats(update, _context):
     stats_values = fix_timespan(str(update.message.text).split('\n')[1].split(' '))
 
     # Init a dictionary. This will represent the name of the stats as key, and the value of the stat as value.
-    stats_dict = dict()
+    stats_dict = {}
 
     # Create an index to keep track of the element we're  at
     stats_index = 0
 
-    # Loop through the stats header. For each stat check if it's in the export.
+    # Loop through the every category in stats_header.
     # Event stats that a player doesn't have will not be shown in the export, that's why we have to check
-    for stat in stats_header:
-        if stat in update.message.text:
-            # Add the name and value of the stat to the dictionary
-            stats_dict[stat] = stats_values[stats_index]
-            # Up the index by 1, next!
-            stats_index += 1
+    for category, stats in stats_header.items():
+        # Loop through all stats in this category. For each stat check if it's in the export.
+        for name, unit in stats.items():
+            if name in update.message.text:
+                # Add the category to the stats_dict (if that didn't happen yet)
+                if category not in stats_dict:
+                    stats_dict[category] = {}
+                # If the value is a number add comma's for every thousand (readability)
+                value = stats_values[stats_index]
+                if value.isdigit():
+                    value = '{:,}'.format(int(value))
+                # Add the name and value (with unit) of the stat to the dictionary
+                stats_dict[category][name] = f'{value} {unit}'
+                # Up the index by 1, next!
+                stats_index += 1
 
-    # Loop through the dictionary. Add every key and value as a row to the output message
+    # Generate the message that's going to be send back
     stats_message = ''
-    for key, value in stats_dict.items():
-        stats_message += f'{key}: {value}\n'
+    # Loop through the categories in the dictionary
+    for category, stats in stats_dict.items():
+        # Print the name of the category in bold (Markdown)
+        stats_message += f'\n*{category}*\n'
+        # Loop through all stats in this category. Add every stat as a row to the output message.
+        for name, value in stats.items():
+            stats_message += f'{name}: {value}\n'
 
     # Send the generated message back
-    update.message.reply_text(stats_message)
+    update.message.reply_text(stats_message, parse_mode='Markdown')
 
 
 def process_incorrectmessage(update, _context):
     if update.message.chat.type == 'private':
-        update.message.reply_text(os.getenv('INCORRECT_MESSAGE'))
+        update.message.reply_text(os.getenv('INCORRECT_MESSAGE'), parse_mode='Markdown')
 
 
 # Send a message to users that start or simply type 'start' in private
 def command_start(update, _context):
     if update.message.chat.type == 'private':
-        update.message.reply_text(os.getenv('START_MESSAGE'))
+        update.message.reply_text(os.getenv('START_MESSAGE'), parse_mode='Markdown')
 
 
 # Send a message when a new chat is created with the bot in it
 def on_chatcreated(update, _context):
-    update.message.reply_text(os.getenv('JOIN_MESSAGE'))
+    update.message.reply_text(os.getenv('JOIN_MESSAGE'), parse_mode='Markdown')
 
 
 # Send a message when the bot gets added to a group
