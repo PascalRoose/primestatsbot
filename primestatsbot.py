@@ -33,6 +33,7 @@ stats_header = \
             'Agent Faction': '',
             'Date (yyyy-mm-dd)': '',
             'Time (hh:mm:ss)': '',
+            'Level': '',
             'Lifetime AP': 'AP',
             'Current AP': 'AP'
         },
