@@ -140,7 +140,7 @@ def fix_timespan(stats_values):
 # Convert the exported stats to a nicely formatted message and send it
 def process_stats(update, context):
     # Check if there are is only one linebreak (so two lines). If not the message format is incorrect
-    if len(str(update.message.text).split('\n')) == 2:
+    if len(str(update.message.text).split('\n')) != 2:
         return process_incorrectmessage(update, context)
 
     # Split first row (keys) and second row (values). Use only the second row (values) and split at every space
