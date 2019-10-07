@@ -138,7 +138,11 @@ def fix_timespan(stats_values):
 
 
 # Convert the exported stats to a nicely formatted message and send it
-def process_stats(update, _context):
+def process_stats(update, context):
+    # Check if there are is only one linebreak (so two lines). If not the message format is incorrect
+    if len(str(update.message.text).split('\n')) == 2:
+        return process_incorrectmessage(update, context)
+
     # Split first row (keys) and second row (values). Use only the second row (values) and split at every space
     # We now have a list of all values. Timespan needs to be fixed first, see the function above for explaination.
     stats_values = fix_timespan(str(update.message.text).split('\n')[1].split(' '))
@@ -159,7 +163,12 @@ def process_stats(update, _context):
                 if category not in stats_dict:
                     stats_dict[category] = {}
                 # If the value is a number add comma's for every thousand (readability)
-                value = stats_values[stats_index]
+                try:
+                    value = stats_values[stats_index]
+                # If the index does not exist this means the message is incomplete and thus incorrect
+                except IndexError:
+                    return process_incorrectmessage(update, context)
+                # If the value is a digit convert it to a string with comma seperators for thousands
                 if value.isdigit():
                     value = '{:,}'.format(int(value))
                 # Add the name and value (with unit) of the stat to the dictionary
