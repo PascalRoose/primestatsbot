@@ -10,11 +10,11 @@
 #
 
 from telegram import Update, Chat, InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
-from telegram.ext import (Dispatcher, ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler,
-                          Filters, CallbackContext)
+from telegram.ext import (Dispatcher, ConversationHandler, MessageHandler, CallbackQueryHandler,
+                          CommandHandler, Filters, CallbackContext)
 
-from primestatsbot.configurations.settings import ADMIN
 from primestatsbot.chatsettings import chatsettings
+from primestatsbot.configurations.settings import ADMIN
 
 # Conversation states
 MSG, CONFIRM = range(2)
@@ -22,6 +22,8 @@ MSG, CONFIRM = range(2)
 
 def init(dispatcher: Dispatcher):
     conv_handler = ConversationHandler(
+        persistent=True,
+        name='broadcast',
         entry_points=[CommandHandler('broadcast', start_broadcast)],
         states={
             MSG: [MessageHandler(filters=Filters.text, callback=confirm_broadcast)],
@@ -74,6 +76,8 @@ def cancel_broadcast(update: Update, context: CallbackContext):
     """Cancel the broadcast"""
     bot = context.bot
     bot.send_message(chat_id=ADMIN, text='Broadcast canceled. Type /broadcast if you want to try again')
-    update.callback_query.answer()
+
+    if update.callback_query is not None:
+        update.callback_query.answer()
 
     return ConversationHandler.END
