@@ -9,7 +9,7 @@ with open('README.md') as f:
 
 setup(
     name='primestatsbot',
-    version='2.0.0',
+    version='2.1.0',
     description='This is a simple Telegram handlers for converting exported stats'
                 ' from Ingress Prime to a nicely formatted message.',
     long_description=readme,
