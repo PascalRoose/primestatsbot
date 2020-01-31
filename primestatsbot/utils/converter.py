@@ -9,8 +9,8 @@
 # - Repo: https://github.com/PascalRoose/primestatsbot.git
 #
 
-from primestatsbot.exceptions import IncorrectMessageError
-from primestatsbot.primestats import PRIMESTATS
+from primestatsbot.utils.exceptions import IncorrectMessageError
+from primestatsbot.resources.primestats import PRIMESTATS
 
 
 def _fix_timespan(stats_values):

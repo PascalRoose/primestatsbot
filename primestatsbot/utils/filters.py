@@ -11,7 +11,7 @@
 
 from telegram.ext import BaseFilter
 
-from primestatsbot.primestats import PRIMESTATS
+from primestatsbot.resources.primestats import PRIMESTATS
 
 
 class StatsFilter(BaseFilter):
