@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# -*- style: pep-8 -*-
 #
 # ** Stats Converter **
 # This is a simple Telegram bot for converting exported stats from Ingress Prime to a nicely formatted message
@@ -9,40 +8,23 @@
 # - Repo: https://github.com/PascalRoose/primestatsbot.git
 #
 
+from copy import deepcopy
+
 from emoji import emojize
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, Chat
-from telegram.ext import (Dispatcher, CallbackContext, CommandHandler, CallbackQueryHandler, ConversationHandler,
-                          run_async)
+from telegram.ext import (Dispatcher, CallbackContext, CommandHandler, CallbackQueryHandler, run_async)
 
-from primestatsbot.messages import SETTINGS_MESSAGE
-from primestatsbot.chatsettings import Copymode, chatsettings, add_chatsettings
+from primestatsbot.configurations.messages import SETTINGS_MESSAGE
+from primestatsbot.resources.chatsettings import Copymode, chatsettings, add_chatsettings, save_chatsettings
 
 # Conversation states
-HOME, STATS, COPY = range(3)
-
-# Callback data for switching states
-GO_HOME, GO_STATS, GO_COPY = range(3)
+HOME, STATS, CAT, COPY = range(4)
 
 
 def init(dispatcher: Dispatcher):
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('settings', show_settings)],
-        states={
-            HOME: [CallbackQueryHandler(set_headers, pattern='^headers$'),
-                   CallbackQueryHandler(set_units, pattern='^units$'),
-                   CallbackQueryHandler(go_stats, pattern='^' + str(GO_STATS) + '$'),
-                   CallbackQueryHandler(go_copy, pattern='^' + str(GO_COPY) + '$')],
-            COPY: [CallbackQueryHandler(go_home, pattern='^' + str(GO_HOME) + '$'),
-                   CallbackQueryHandler(set_copy, pattern='^cp_')],
-            STATS: [CallbackQueryHandler(go_home, pattern='^' + str(GO_HOME) + '$'),
-                    CallbackQueryHandler(go_stats, pattern='^' + str(GO_STATS) + '$'),
-                    CallbackQueryHandler(go_cat, pattern='^cat_'),
-                    CallbackQueryHandler(set_stat, pattern='^stat_')]
-        },
-        fallbacks=[CommandHandler('settings', show_settings)],
-        per_message=False
-    )
-    dispatcher.add_handler(conv_handler)
+    dispatcher.add_handler(CommandHandler(command='settings', callback=show_settings))
+    dispatcher.add_handler(CallbackQueryHandler(pattern='^NAV_', callback=navigate_menu))
+    dispatcher.add_handler(CallbackQueryHandler(pattern='^SET_', callback=update_settings))
 
 
 def _allowed(update: Update):
@@ -56,7 +38,7 @@ def _allowed(update: Update):
     return False
 
 
-def home_keyboard(chat_id: int):
+def keyboard_home(chat_id: int):
     """Keyboard for home state"""
     # give copymode a nice name for output
     if chatsettings[chat_id]["copy"] == Copymode.NONE.value:
@@ -81,15 +63,19 @@ def home_keyboard(chat_id: int):
         units = emojize(":x:", use_aliases=True)
 
     keyboard = [
-        [InlineKeyboardButton(text=f'Show headers: {headers}', callback_data=f'headers')],
-        [InlineKeyboardButton(text=f'Show units: {units}', callback_data=f'units')],
-        [InlineKeyboardButton(text=f'Show/hide stats', callback_data=str(GO_STATS))],
-        [InlineKeyboardButton(text=f'Copymode: {copymode}', callback_data=str(GO_COPY))]
+        [InlineKeyboardButton(text=f'Show headers: {headers}',
+                              callback_data=f'SET_HEADERS_{"OFF" if chatsettings[chat_id]["headers"] else "ON"}')],
+        [InlineKeyboardButton(text=f'Show units: {units}',
+                              callback_data=f'SET_UNITS_{"OFF" if chatsettings[chat_id]["units"] else "ON"}')],
+        [InlineKeyboardButton(text=f'Show/hide stats',
+                              callback_data=f'NAV_{str(STATS)}')],
+        [InlineKeyboardButton(text=f'Copymode: {copymode}',
+                              callback_data=f'NAV_{str(COPY)}')]
     ]
     return InlineKeyboardMarkup(keyboard)
 
 
-def stats_keyboard(chat_id: int):
+def keyboard_stats(chat_id: int):
     """Keyboard for stats state"""
     keyboard = []
 
@@ -103,24 +89,25 @@ def stats_keyboard(chat_id: int):
         # Else a minus-emoji
         else:
             icon = emojize(":heavy_minus_sign:")
-        keyboard.append([InlineKeyboardButton(text=f'{icon}{cat}', callback_data=f'cat_{cat}_all')])
+        keyboard.append([InlineKeyboardButton(text=f'{icon}{cat}', callback_data=f'NAV_{str(CAT)}|{cat}')])
 
     # Back button to go to the home state
-    keyboard.append([InlineKeyboardButton(text=emojize(':arrow_left:', use_aliases=True), callback_data=str(GO_HOME))])
+    keyboard.append([InlineKeyboardButton(text=emojize(':arrow_left:', use_aliases=True),
+                                          callback_data=f'NAV_{str(HOME)}')])
 
     return InlineKeyboardMarkup(keyboard)
 
 
-def cat_keyboard(chat_id: int, cat: str):
+def keyboard_cat(chat_id: int, cat: str):
     """Keyboard with all stats within a category to disable or enable"""
     keyboard = []
 
     # Buttons in one row. Enable all (checkmark), disable all (red X)
     enable_disable = [
         InlineKeyboardButton(text=emojize(":white_check_mark: ", use_aliases=True),
-                             callback_data=f'stat_{cat}_en-all'),
+                             callback_data=f'SET_{cat}|ALL_ON'),
         InlineKeyboardButton(text=emojize(":x: ", use_aliases=True),
-                             callback_data=f'stat_{cat}_dis-all')
+                             callback_data=f'SET_{cat}|ALL_OFF')
     ]
     keyboard.append(enable_disable)
 
@@ -131,14 +118,15 @@ def cat_keyboard(chat_id: int, cat: str):
         else:
             icon = emojize(":x: ", use_aliases=True)
         keyboard.append([InlineKeyboardButton(text=f'{icon}{stat_name}',
-                                              callback_data=f'stat_{cat}_{stat_name}')])
+                                              callback_data=f'SET_{cat}|{stat_name}_'
+                                                            f'{"OFF" if show else "ON"}')])
     keyboard.append([InlineKeyboardButton(text=emojize(':arrow_left:', use_aliases=True),
-                                          callback_data=str(GO_STATS))])
+                                          callback_data=f'NAV_{str(STATS)}')])
 
     return InlineKeyboardMarkup(keyboard)
 
 
-def copy_keyboard(chat_id: int):
+def keyboard_copy(chat_id: int):
     """Keyboard for copy state"""
 
     # Icons for indicating the current copymode (radio-button)
@@ -155,14 +143,35 @@ def copy_keyboard(chat_id: int):
     ]
 
     keyboard = [
-        [InlineKeyboardButton(text=f'{icons[0]} No copy mode', callback_data=f'cp_{Copymode.NONE.value}')],
-        [InlineKeyboardButton(text=f'{icons[1]} Only values', callback_data=f'cp_{Copymode.VALUES_ONLY.value}')],
-        [InlineKeyboardButton(text=f'{icons[2]} Name and value', callback_data=f'cp_{Copymode.NAME_AND_VALUE.value}')],
-        [InlineKeyboardButton(text=f'{icons[3]} All text', callback_data=f'cp_{Copymode.ALL.value}')],
-        [InlineKeyboardButton(text=emojize(':arrow_left:', use_aliases=True), callback_data=str(GO_HOME))]
+        [InlineKeyboardButton(text=f'{icons[0]} No copy mode',
+                              callback_data=f'SET_COPY_{Copymode.NONE.value}')],
+        [InlineKeyboardButton(text=f'{icons[1]} Only values',
+                              callback_data=f'SET_COPY_{Copymode.VALUES_ONLY.value}')],
+        [InlineKeyboardButton(text=f'{icons[2]} Name and value',
+                              callback_data=f'SET_COPY_{Copymode.NAME_AND_VALUE.value}')],
+        [InlineKeyboardButton(text=f'{icons[3]} All text',
+                              callback_data=f'SET_COPY_{Copymode.ALL.value}')],
+        [InlineKeyboardButton(text=emojize(':arrow_left:', use_aliases=True),
+                              callback_data=f'NAV_{str(HOME)}')]
     ]
 
     return InlineKeyboardMarkup(keyboard)
+
+
+@run_async
+def set_keyboard(query, keyboard, chat_id):
+    """Attach a given keyboard to a message"""
+    if keyboard == str(HOME):
+        query.edit_message_reply_markup(keyboard_home(chat_id))
+    elif keyboard == str(STATS):
+        query.edit_message_reply_markup(keyboard_stats(chat_id))
+    elif keyboard == str(COPY):
+        query.edit_message_reply_markup(keyboard_copy(chat_id))
+    else:
+        _, cat = keyboard.split('|')
+        query.edit_message_reply_markup(keyboard_cat(chat_id, cat))
+
+    query.answer()
 
 
 @run_async
@@ -174,144 +183,66 @@ def show_settings(update: Update, _context: CallbackContext):
         if chat_id not in chatsettings:
             add_chatsettings(chat_id)
 
-        reply_markup = home_keyboard(chat_id)
+        reply_markup = keyboard_home(chat_id)
         update.message.reply_text(SETTINGS_MESSAGE, reply_markup=reply_markup)
 
-        return HOME
-    return ConversationHandler.END
+
+@run_async
+def navigate_menu(update:  Update, _context: CallbackContext):
+    query = update.callback_query
+    chat_id = query.message.chat.id
+
+    _, keyboard = query.data.split('_')
+
+    set_keyboard(query, keyboard, chat_id)
 
 
 @run_async
-def go_home(update: Update, _context: CallbackContext):
-    """Switch to home state, update the keyboard"""
+def update_settings(update: Update, _context: CallbackContext):
     if _allowed(update):
         query = update.callback_query
         chat_id = query.message.chat.id
+        old_settings = deepcopy(chatsettings[chat_id])
+        _, stat, setting = query.data.split('_')
 
-        reply_markup = home_keyboard(chat_id)
-
-        query.edit_message_reply_markup(reply_markup)
-        query.answer()
-
-        return HOME
-
-
-@run_async
-def go_stats(update: Update, _context: CallbackContext):
-    """Switch to stats state, update the keyboard"""
-    if _allowed(update):
-        query = update.callback_query
-        chat_id = query.message.chat.id
-
-        reply_markup = stats_keyboard(chat_id)
-
-        query.edit_message_reply_markup(reply_markup)
-        query.answer()
-
-        return STATS
-
-
-@run_async
-def go_cat(update: Update, _context: CallbackContext):
-    """Update the keyboard to the right category"""
-    if _allowed(update):
-        query = update.callback_query
-        chat_id = query.message.chat.id
-        _, cat, _ = query.data.split('_')
-
-        reply_markup = cat_keyboard(chat_id, cat)
-
-        query.edit_message_reply_markup(reply_markup)
-        query.answer()
-
-        return STATS
-
-
-@run_async
-def go_copy(update: Update, _context: CallbackContext):
-    """Switch to copy state, update the keyboard"""
-    if _allowed(update):
-        query = update.callback_query
-        chat_id = query.message.chat.id
-
-        reply_markup = copy_keyboard(chat_id)
-
-        query.edit_message_reply_markup(reply_markup)
-        query.answer()
-
-        return COPY
-
-
-@run_async
-def set_headers(update: Update, context: CallbackContext):
-    """Change the header setting"""
-    if _allowed(update):
-        query = update.callback_query
-        chat_id = query.message.chat.id
-
-        if chatsettings[chat_id]['headers']:
-            chatsettings[chat_id]['headers'] = False
-        else:
-            chatsettings[chat_id]['headers'] = True
-
-        return go_home(update, context)
-
-
-@run_async
-def set_units(update: Update, context: CallbackContext):
-    """Change the units setting"""
-    if _allowed(update):
-        query = update.callback_query
-        chat_id = query.message.chat.id
-
-        if chatsettings[chat_id]['units']:
-            chatsettings[chat_id]['units'] = False
-        else:
-            chatsettings[chat_id]['units'] = True
-
-        return go_home(update, context)
-
-
-@run_async
-def set_stat(update: Update, context: CallbackContext):
-    """Change the stats setting"""
-    if _allowed(update):
-        query = update.callback_query
-        chat_id = query.message.chat.id
-
-        _, cat, stat = query.data.split('_')
-
-        # If en-all set all stats in the category to true
-        if stat == 'en-all':
-            for stat, _ in chatsettings[chat_id]['stats'][cat].items():
-                chatsettings[chat_id]['stats'][cat][stat] = True
-        # Else if dis-all set all stats in the category to false
-        elif stat == 'dis-all':
-            for stat, _ in chatsettings[chat_id]['stats'][cat].items():
-                chatsettings[chat_id]['stats'][cat][stat] = False
-        # Else switch setting for individual stat
-        else:
-            if chatsettings[chat_id]['stats'][cat][stat]:
-                chatsettings[chat_id]['stats'][cat][stat] = False
+        if stat == 'HEADERS':
+            if setting == 'ON':
+                chatsettings[chat_id]['headers'] = True
+            elif setting == 'OFF':
+                chatsettings[chat_id]['headers'] = False
+            save_chatsettings()
+            return set_keyboard(query, str(HOME), chat_id)
+        elif stat == 'UNITS':
+            if setting == 'ON':
+                chatsettings[chat_id]['units'] = True
+            elif setting == 'OFF':
+                chatsettings[chat_id]['units'] = False
+            save_chatsettings()
+            return set_keyboard(query, str(HOME), chat_id)
+        elif stat == 'COPY':
+            # Update setting, refresh keyboard
+            chatsettings[chat_id]['copy'] = int(setting)
+            if chatsettings[chat_id] != old_settings:
+                save_chatsettings()
+                return set_keyboard(query, str(COPY), chat_id)
             else:
-                chatsettings[chat_id]['stats'][cat][stat] = True
+                query.answer()
+        else:
+            cat, stat = stat.split('|')
+            if stat == 'ALL':
+                for _stat, _ in chatsettings[chat_id]['stats'][cat].items():
+                    if setting == 'ON':
+                        chatsettings[chat_id]['stats'][cat][_stat] = True
+                    elif setting == 'OFF':
+                        chatsettings[chat_id]['stats'][cat][_stat] = False
+            else:
+                if setting == 'ON':
+                    chatsettings[chat_id]['stats'][cat][stat] = True
+                elif setting == 'OFF':
+                    chatsettings[chat_id]['stats'][cat][stat] = False
 
-        return go_cat(update, context)
-
-
-@run_async
-def set_copy(update: Update, context: CallbackContext):
-    """Change the copy setting"""
-    if _allowed(update):
-        query = update.callback_query
-        _, copymode = query.data.split('_')
-        chat_id = query.message.chat.id
-
-        # If the setting stays the same, return to state COPY, do not update
-        if chatsettings[chat_id]['copy'] == int(copymode):
-            query.answer()
-            return COPY
-
-        # Update setting, refresh keyboard
-        chatsettings[chat_id]['copy'] = int(copymode)
-        return go_copy(update, context)
+            if chatsettings[chat_id] != old_settings:
+                save_chatsettings()
+                return set_keyboard(query, f'{str(CAT)}|{cat}', chat_id)
+            else:
+                query.answer()
