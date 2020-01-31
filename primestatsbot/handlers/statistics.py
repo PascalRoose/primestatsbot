@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# -*- style: pep-8 -*-
 #
 # ** Stats Converter **
 # This is a simple Telegram bot for converting exported stats from Ingress Prime to a nicely formatted message
@@ -13,7 +12,7 @@ from telegram import Update, Chat
 from telegram.ext import Dispatcher, CommandHandler, CallbackContext
 
 from primestatsbot.configurations.settings import ADMIN
-from primestatsbot.history import get_usage_total, get_usage_week, get_users_total, get_users_week
+from primestatsbot.resources.history import get_usage_total, get_usage_week, get_users_total, get_users_week
 
 
 def init(dispatcher: Dispatcher):
