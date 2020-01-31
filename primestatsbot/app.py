@@ -48,7 +48,3 @@ def run():
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the handlers gracefully.
     updater.idle()
-
-    # Make sure to save history and usersettings before shutting down
-    save_history()
-    save_chatsettings()
