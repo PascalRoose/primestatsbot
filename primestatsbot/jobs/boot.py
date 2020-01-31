@@ -20,7 +20,7 @@ LOGGER = get_logger(__name__)
 
 
 def init(job_queue: JobQueue):
-    job_queue.run_once(callback=boot_job, when=0)
+    job_queue.run_once(callback=boot_job, when=1)
 
 
 @run_async
