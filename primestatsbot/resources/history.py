@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# -*- style: pep-8 -*-
 #
 # ** Stats Converter **
 # This is a simple Telegram bot for converting exported stats from Ingress Prime to a nicely formatted message
@@ -13,11 +12,13 @@ import datetime
 import os
 import pickle
 
-_thisdir = os.path.dirname(os.path.realpath(__file__))
+from appdirs import user_cache_dir
+
+filename = os.path.join(user_cache_dir("primestatsbot"), "history.pickle")
 
 # Load usersettings from pickle if it exists
 try:
-    with open(os.path.join(_thisdir, 'resources/history.pickle'), 'rb') as history_in:
+    with open(filename, 'rb') as history_in:
         history = pickle.load(history_in)
 # Else create a new empty dictionary
 except FileNotFoundError:
@@ -39,6 +40,10 @@ def add_record(tg_id: int):
 
     # Add one usage to user for today
     history[today][tg_id] += 1
+
+    # Save after every change
+    with open(filename, 'wb+') as history_out:
+        pickle.dump(history, history_out)
 
 
 def get_usage_total():
@@ -104,9 +109,3 @@ def get_users_week():
 
     # Turn list into set (only unique users), return the length of the list
     return len(set(users))
-
-
-def save_history():
-    """Save history as pickle"""
-    with open(os.path.join(_thisdir, 'resources/history.pickle'), 'wb+') as history_out:
-        pickle.dump(history, history_out)

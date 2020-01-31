@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# -*- style: pep-8 -*-
 #
 # ** Stats Converter **
 # This is a simple Telegram bot for converting exported stats from Ingress Prime to a nicely formatted message
@@ -14,21 +13,22 @@ import pickle
 from copy import deepcopy
 from enum import Enum
 
-from primestatsbot.primestats import PRIMESTATS
+from appdirs import user_cache_dir
 
-_thisdir = os.path.dirname(os.path.realpath(__file__))
+from primestatsbot.resources.primestats import PRIMESTATS
 
-# Load chatsettings from pickle if it exists
+filename = os.path.join(user_cache_dir("primestatsbot"), "chatsettings.pickle")
+
+# Load chatsettings from pickle if it exists, create new one otherwise
 try:
-    with open(os.path.join(_thisdir, 'resources/chatsettings.pickle'), 'rb') as chatsettings_in:
+    with open(filename, 'rb') as chatsettings_in:
         chatsettings = pickle.load(chatsettings_in)
-# Else create a new empty dictionary
 except FileNotFoundError:
     chatsettings = {}
 
 
-# Enumerate for copymodes
 class Copymode(Enum):
+    """Enumerate for copymodes"""
     NONE = 0
     VALUES_ONLY = 1
     NAME_AND_VALUE = 2
@@ -52,8 +52,18 @@ def add_chatsettings(tg_id):
         'units': True
     }
 
+    save_chatsettings()
+
+
+def get_chatsettings(tg_id):
+    return deepcopy(chatsettings[tg_id])
+
+
+def update_chatsettings(tg_id, new_chatsettings):
+    chatsettings[tg_id] = new_chatsettings
+    save_chatsettings()
+
 
 def save_chatsettings():
-    """Save chatsettings as pickle"""
-    with open(os.path.join(_thisdir, 'resources/chatsettings.pickle'), 'wb+') as chatsettings_out:
+    with open(filename, 'wb+') as chatsettings_out:
         pickle.dump(chatsettings, chatsettings_out)

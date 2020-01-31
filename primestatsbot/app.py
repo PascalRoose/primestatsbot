@@ -11,24 +11,24 @@
 
 import os
 
+from appdirs import user_log_dir, user_cache_dir
 from telegram.ext import Updater, PicklePersistence
 
 from primestatsbot.configurations.settings import TOKEN, NAME
-from primestatsbot.history import save_history
-from primestatsbot.chatsettings import save_chatsettings
 from primestatsbot.utils.logger import init_logger
 from primestatsbot.utils.utils import load_handlers, load_jobs
 
 
 def run():
     """Run the telegram bot"""
-    # Initialize the logger
-    log_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), f'logs/{NAME}.log')
-    init_logger(log_path)
 
-    # Persistence file
-    picklepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'resources/telegram.pickle')
-    persistence = PicklePersistence(filename=picklepath)
+    # Initialize the logger
+    logfile = os.path.join(user_log_dir("primestatsbot"), f'{NAME}.log')
+    init_logger(logfile)
+
+    # Telegram persistence file
+    picklefile = os.path.join(user_cache_dir("primestatsbot"), "telegram.pickle")
+    persistence = PicklePersistence(filename=picklefile)
 
     # Create the Updater with the bottoken saved in .env
     updater = Updater(TOKEN, use_context=True, persistence=persistence)

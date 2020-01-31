@@ -9,17 +9,29 @@
 # - Repo: https://github.com/PascalRoose/primestatsbot.git
 #
 
-TOKEN = '599256047:AAE8Z_YqSF_J7OudQYplaJU29mv3wmDSAC0'  # Bot API Token
-NAME = 'pascal_testbot'  # Username of the bot (without @)
-ADMIN = 129626744  # Telegram ID of the admin user
+import os
 
-WEBHOOK = False
+from configparser import ConfigParser
+from appdirs import user_config_dir
+
+filename = os.path.join(user_config_dir("primestatsbot"), 'config.ini')
+
+config = ConfigParser()
+config.read(filename)
+
+TOKEN = str(config['DEFAULT']['Token'])         # Bot API Token
+NAME = str(config['DEFAULT']['Name'])           # Username of the bot (without @)
+ADMIN = int(config['DEFAULT']['Admin'])         # Telegram ID of the admin user
+
+if config['Webhook']['Enabled'] == 'true':
+    WEBHOOK = True
+else:
+    WEBHOOK = False
 
 # The following configuration is only needed if you setted WEBHOOK to True
 WEBHOOK_OPTIONS = {
-    'listen': '0.0.0.0',  # IP
-    'port': 443,
-    'url_path': TOKEN,  # This is recommended for avoiding random people
-    #  making fake updates to your bot
+    'listen':   str(config['Webhook']['IP']),
+    'port':     int(config['Webhook']['Port']),
+    'url_path': str(config['Webhook']['Path']),
 }
-WEBHOOK_URL = f'https://example.com/{WEBHOOK_OPTIONS["url_path"]}'
+WEBHOOK_URL = str(config['Webhook']['URL'])
