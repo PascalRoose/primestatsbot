@@ -78,7 +78,8 @@ PRIMESTATS = {
         "OPR Live Events": "",
         "Prime Challenges": "",
         "Intel Ops Missions": "",
-        "Stealth Ops Missions": ""
+        "Stealth Ops Missions": "",
+        "Umbra: Unique Resonator Slots Deployed": ""
     },
     "Recursion": {
         "Recursions": ""
