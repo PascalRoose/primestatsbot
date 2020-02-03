@@ -15,7 +15,7 @@ from primestatsbot.utils.exceptions import IncorrectMessageError
 from primestatsbot.resources.history import add_record
 from primestatsbot.configurations.messages import INCORRECT_MESSAGE
 from primestatsbot.resources.primestats import PRIMESTATS
-from primestatsbot.resources.chatsettings import chatsettings, add_chatsettings
+from primestatsbot.resources.chatsettings import chatsettings, add_chatsettings, update_chatsettings
 from primestatsbot.utils import converter
 from primestatsbot.utils.filters import StatsFilter
 
@@ -63,6 +63,11 @@ def convert_primestats(update: Update, context: CallbackContext):
                     stats_message += f'{category}\n'
                 # Loop through the stats in the category
                 for stat_name, stat_value in stats.items():
+                    # Add the stat to chatsettings if the key was not found
+                    if stat_name not in show_stat[category]:
+                        show_stat[category][stat_name] = True
+                        update_chatsettings(chat_id, chatsettings[chat_id])
+
                     # Only add the stat to the message if it's enabled in chatsettings
                     if show_stat[category][stat_name]:
                         # Get the unit associated with the stat
