@@ -79,7 +79,8 @@ PRIMESTATS = {
         "Prime Challenges": "",
         "Intel Ops Missions": "",
         "Stealth Ops Missions": "",
-        "Umbra: Unique Resonator Slots Deployed": ""
+        "Umbra: Unique Resonator Slots Deployed": "",
+        "Didact: Control Fields Created": ""
     },
     "Recursion": {
         "Recursions": ""
