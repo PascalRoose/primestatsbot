@@ -79,7 +79,7 @@ PRIMESTATS = {
         "Prime Challenges": "",
         "Intel Ops Missions": "",
         "Stealth Ops Missions": "",
-        "Didact: Total Fields Created": ""
+        "Didact Fields Created": ""
     },
     "Recursion": {
         "Recursions": ""
