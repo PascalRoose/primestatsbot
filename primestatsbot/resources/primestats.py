@@ -25,7 +25,7 @@ PRIMESTATS = {
         "Seer Points": "",
         "XM Collected": "XM",
         "OPR Agreements": "",
-        "AR Videos Uploaded": ""
+        "Portal Scans Uploaded": ""
     },
     "Health": {
         "Distance Walked": "km"
