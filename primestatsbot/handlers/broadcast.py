@@ -12,8 +12,8 @@ from telegram import Update, Chat, InlineKeyboardButton, InlineKeyboardMarkup, P
 from telegram.ext import (Dispatcher, ConversationHandler, MessageHandler, CallbackQueryHandler,
                           CommandHandler, Filters, CallbackContext)
 
-from primestatsbot.resources.chatsettings import chatsettings
 from primestatsbot.configurations.settings import ADMIN
+from primestatsbot.resources.chatsettings import chatsettings
 
 # Conversation states
 MSG, CONFIRM = range(2)

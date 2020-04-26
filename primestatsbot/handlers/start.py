@@ -11,8 +11,8 @@
 from telegram import Update, ParseMode
 from telegram.ext import CallbackContext, CommandHandler, Dispatcher, MessageHandler, Filters, run_async
 
-from primestatsbot.configurations.settings import NAME
 from primestatsbot.configurations.messages import START_MESSAGE, JOIN_MESSAGE
+from primestatsbot.configurations.settings import NAME
 
 
 def init(dispatcher: Dispatcher):

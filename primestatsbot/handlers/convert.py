@@ -11,12 +11,12 @@
 from telegram import Update, ParseMode
 from telegram.ext import Dispatcher, CallbackContext, MessageHandler, run_async
 
-from primestatsbot.utils.exceptions import IncorrectMessageError
-from primestatsbot.resources.history import add_record
 from primestatsbot.configurations.messages import INCORRECT_MESSAGE
-from primestatsbot.resources.primestats import PRIMESTATS
 from primestatsbot.resources.chatsettings import chatsettings, add_chatsettings, update_chatsettings
+from primestatsbot.resources.history import add_record
+from primestatsbot.resources.primestats import PRIMESTATS
 from primestatsbot.utils import converter
+from primestatsbot.utils.exceptions import IncorrectMessageError
 from primestatsbot.utils.filters import StatsFilter
 
 

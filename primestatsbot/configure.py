@@ -9,8 +9,8 @@
 #
 
 import os
-
 from configparser import ConfigParser
+
 from appdirs import user_config_dir
 
 configfile = os.path.join(user_config_dir("primestatsbot"), 'config.ini')
