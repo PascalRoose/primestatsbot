@@ -8,10 +8,11 @@
 # - Repo: https://github.com/PascalRoose/primestatsbot.git
 #
 
-from telegram import Update, ParseMode
+from telegram import Update, ParseMode, Chat
+from telegram.error import BadRequest
 from telegram.ext import Dispatcher, CallbackContext, MessageHandler, run_async
 
-from primestatsbot.configurations.messages import INCORRECT_MESSAGE
+from primestatsbot.configurations.messages import INCORRECT_MESSAGE, CANT_DELETE_MESSAGE
 from primestatsbot.resources.chatsettings import chatsettings, add_chatsettings, update_chatsettings
 from primestatsbot.resources.history import add_record
 from primestatsbot.resources.primestats import PRIMESTATS
@@ -87,7 +88,13 @@ def convert_primestats(update: Update, context: CallbackContext):
         if copymode == 3:
             stats_message += '`'
 
-        update.message.reply_text(stats_message, parse_mode=ParseMode.MARKDOWN)
+        context.bot.send_message(update.effective_chat.id, stats_message, parse_mode=ParseMode.MARKDOWN)
+
+        if update.effective_chat.type == Chat.SUPERGROUP or update.effective_chat.type == Chat.GROUP:
+            try:
+                update.message.delete()
+            except BadRequest:
+                update.message.reply_text(CANT_DELETE_MESSAGE)
 
     except IncorrectMessageError:
         return incorrect_message(update, context)

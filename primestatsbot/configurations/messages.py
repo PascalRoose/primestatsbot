@@ -30,3 +30,5 @@ INCORRECT_MESSAGE = 'Message format not recognized. Make sure not to alter the c
                     'Type /help for instructions'
 
 SETTINGS_MESSAGE = 'Use the buttons below this message to change the format of the output message.'
+
+CANT_DELETE_MESSAGE = 'I don\'t have permission to delete this message...'
