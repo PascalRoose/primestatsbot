@@ -61,7 +61,7 @@ def convert_primestats(update: Update, context: CallbackContext):
                     # Add newline (\n) before category if it's not the on the first line (start of the message)
                     if len(stats_message.split('\n')) > 0:
                         stats_message += '\n'
-                    stats_message += f'{category}\n'
+                    stats_message += f'-- {category} --\n'
                 # Loop through the stats in the category
                 for stat_name, stat_value in stats.items():
                     # Add the stat to chatsettings if the key was not found
@@ -79,7 +79,7 @@ def convert_primestats(update: Update, context: CallbackContext):
                             stats_message += f'{stat_name}: {stat_value}{" " + unit if show_unit else ""}\n'
                         # Else if copymode is 1 (values only) wrap the value (and unit) in `backticks`
                         elif copymode == 1:
-                            stats_message += f'{stat_name}: `{stat_value}{" " + unit if show_unit else ""}`\n'
+                            stats_message += f'{stat_name}: `{stat_value}`{" " + unit if show_unit else ""}\n'
                         # Else if copymode is 2 (name and value) wrap the entire line in `backticks`
                         elif copymode == 2:
                             stats_message += f'`{stat_name}: {stat_value}{" " + unit if show_unit else ""}`\n'
