@@ -21,6 +21,7 @@ PRIMESTATS = {
     },
     "Discovery": {
         "Unique Portals Visited": "",
+        "Unique Portals Drone Visited": "",
         "Portals Discovered": "",
         "Seer Points": "",
         "XM Collected": "XM",
@@ -64,6 +65,7 @@ PRIMESTATS = {
     },
     "Resource Gathering": {
         "Hacks": "",
+        "Drone Hacks": "",
         "Glyph Hack Points": "",
         "Longest Hacking Streak": "days",
         "Current Hacking Streak": "days"
