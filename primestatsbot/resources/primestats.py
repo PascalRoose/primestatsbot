@@ -22,6 +22,7 @@ PRIMESTATS = {
     "Discovery": {
         "Unique Portals Visited": "",
         "Unique Portals Drone Visited": "",
+        "Furthest Drone Flight Distance": "km",
         "Portals Discovered": "",
         "Seer Points": "",
         "XM Collected": "XM",
