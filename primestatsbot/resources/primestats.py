@@ -59,7 +59,8 @@ PRIMESTATS = {
         "Max Time Link Maintained": "days",
         "Max Link Length x Days": "km-days",
         "Max Time Field Held": "days",
-        "Largest Field MUs x Days": "MU-days"
+        "Largest Field MUs x Days": "MU-days",
+        "Forced Drone Recalls": ""
     },
     "Missions": {
         "Unique Missions Completed": ""
