@@ -27,7 +27,8 @@ PRIMESTATS = {
         "Seer Points": "",
         "XM Collected": "XM",
         "OPR Agreements": "",
-        "Portal Scans Uploaded": ""
+        "Portal Scans Uploaded": "",
+        "Scout Controller on Unique Portals": ""
     },
     "Health": {
         "Distance Walked": "km"
