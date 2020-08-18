@@ -22,13 +22,13 @@ PRIMESTATS = {
     "Discovery": {
         "Unique Portals Visited": "",
         "Unique Portals Drone Visited": "",
-        "Furthest Drone Flight Distance": "km",
+        "Furthest Drone Distance": "km",
         "Portals Discovered": "",
         "Seer Points": "",
         "XM Collected": "XM",
         "OPR Agreements": "",
         "Portal Scans Uploaded": "",
-        "Scout Controller on Unique Portals": ""
+        "Uniques Scout Controlled": ""
     },
     "Health": {
         "Distance Walked": "km"
@@ -74,7 +74,7 @@ PRIMESTATS = {
         "Current Hacking Streak": "days"
     },
     "Mentoring": {
-        "Agents Successfully Recruited": ""
+        "Agents Recruited": ""
     },
     "Events": {
         "Mission Day(s) Attended": "",
