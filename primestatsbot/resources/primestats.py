@@ -54,7 +54,8 @@ PRIMESTATS = {
         "Resonators Destroyed": "",
         "Portals Neutralized": "",
         "Enemy Links Destroyed": "",
-        "Enemy Fields Destroyed": ""
+        "Enemy Fields Destroyed": "", 
+        "Battle Beacon Combatant" : ""
     },
     "Defense": {
         "Max Time Portal Held": "days",
