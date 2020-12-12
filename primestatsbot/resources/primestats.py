@@ -31,7 +31,8 @@ PRIMESTATS = {
         "Uniques Scout Controlled": ""
     },
     "Health": {
-        "Distance Walked": "km"
+        "Distance Walked": "km", 
+        "Kinetic Capsules Completed": ""
     },
     "Building": {
         "Resonators Deployed": "",
