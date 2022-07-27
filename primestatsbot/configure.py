@@ -28,7 +28,7 @@ def run():
 
     enable_webhook = input('Do you want to enable updates over webhook? [y/N] ')
 
-    if enable_webhook == 'y' or enable_webhook == 'Y':
+    if enable_webhook.lower() == 'y':
         config['Webhook']['Enabled'] = 'true'
         config['Webhook']['IP'] = input('IP address: ')
         config['Webhook']['Port'] = input('Port number: ')
