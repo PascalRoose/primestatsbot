@@ -30,10 +30,6 @@ PRIMESTATS = {
         "Portal Scans Uploaded": "",
         "Uniques Scout Controlled": ""
     },
-    "Health": {
-        "Distance Walked": "km", 
-        "Kinetic Capsules Completed": ""
-    },
     "Building": {
         "Resonators Deployed": "",
         "Links Created": "",
@@ -50,12 +46,24 @@ PRIMESTATS = {
         "Control Fields Active": "",
         "Mind Unit Control": "MUs"
     },
+    "Resource Gathering": {
+        "Hacks": "",
+        "Drone Hacks": "",
+        "Glyph Hack Points": ""
+    },
+    "Streaks": {
+        "Longest Hacking Streak": "days",
+        "Current Hacking Streak": "days",
+        "Longest Sojourner Streak": "days",
+        "Completed Hackstreaks": ""
+    },
     "Combat": {
         "Resonators Destroyed": "",
         "Portals Neutralized": "",
         "Enemy Links Destroyed": "",
         "Enemy Fields Destroyed": "", 
-        "Battle Beacon Combatant" : ""
+        "Battle Beacon Combatant": "",
+        "Drones Returned": ""
     },
     "Defense": {
         "Max Time Portal Held": "days",
@@ -65,31 +73,35 @@ PRIMESTATS = {
         "Largest Field MUs x Days": "MU-days",
         "Forced Drone Recalls": ""
     },
+    "Health": {
+        "Distance Walked": "km", 
+        "Kinetic Capsules Completed": ""
+    },
     "Missions": {
         "Unique Missions Completed": ""
-    },
-    "Resource Gathering": {
-        "Hacks": "",
-        "Drone Hacks": "",
-        "Glyph Hack Points": "",
-        "Longest Hacking Streak": "days",
-        "Current Hacking Streak": "days"
-    },
-    "Mentoring": {
-        "Agents Recruited": ""
     },
     "Events": {
         "Mission Day(s) Attended": "",
         "NL-1331 Meetup(s) Attended": "",
         "First Saturday Events": "",
+        "Second Sunday Events": "",
         "Clear Fields Events": "",
         "OPR Live Events": "",
         "Prime Challenges": "",
         "Intel Ops Missions": "",
         "Stealth Ops Missions": "",
-        "Didact Fields Created": ""
+        "Didact Fields Created": "",
+        "EOS Points Earned": "",
+        "Solstice XM Recharged": "XM",
+        "Kythera": ""
+    },
+    "Mentoring": {
+        "Agents Recruited": ""
     },
     "Recursion": {
         "Recursions": ""
+    },
+    "Subscription": {
+        "Months Subscribed": ""
     }
 }
